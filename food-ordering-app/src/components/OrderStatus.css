@@ -1,0 +1,52 @@
+.order-status {
+    padding: 20px;
+    max-width: 800px;
+    margin: 0 auto;
+}
+
+.orders {
+    margin-bottom: 20px;
+}
+
+.order {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.order p {
+    margin: 0;
+    font-weight: bold;
+}
+
+.order ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+}
+
+.order ul li {
+    margin: 5px 0;
+    word-wrap: break-word;
+}
+
+.place-new-order-button {
+    display: block;
+    padding: 15px;
+    width: 100%;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 1em;
+    background-color: #4CAF50;
+    color: white;
+}
+
+.place-new-order-button:hover {
+    background-color: #45a049;
+}

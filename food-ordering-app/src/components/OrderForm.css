@@ -1,0 +1,31 @@
+.order-confirmation {
+    background-color: #d4edda;
+    color: #155724;
+    padding: 10px;
+    margin-bottom: 20px;
+    border: 1px solid #c3e6cb;
+    border-radius: 4px;
+    text-align: center;
+}
+
+.order-form input, .order-form button {
+    display: block;
+    margin: 10px 0;
+    padding: 10px;
+    width: 100%;
+}
+
+.place-order-button {
+    background-color: #007bff;
+    color: white;
+    border: none;
+    padding: 15px;
+    cursor: pointer;
+    font-size: 16px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.place-order-button:hover {
+    background-color: #0056b3;
+}

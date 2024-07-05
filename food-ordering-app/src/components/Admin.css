@@ -1,0 +1,176 @@
+.admin {
+    padding: 20px;
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.orders-toggle {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.orders-toggle button {
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 4px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.orders-toggle button.selected {
+    background-color: #45a049;
+    color: white;
+}
+
+.orders {
+    margin-bottom: 20px;
+}
+
+.order {
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 10px;
+    word-wrap: break-word;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+}
+
+.order p {
+    margin: 0;
+    font-weight: bold;
+}
+
+.order ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0 0 0;
+}
+
+.order ul li {
+    margin: 5px 0;
+    word-wrap: break-word;
+}
+
+.mark-as-ready-button,
+.mark-as-collected-button {
+    display: block;
+    padding: 10px;
+    margin-top: 10px;
+    width: 100%;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    text-align: center;
+    font-size: 1em;
+}
+
+.mark-as-ready-button {
+    background-color: #FF9800;
+    color: white;
+}
+
+.mark-as-ready-button:hover {
+    background-color: #F57C00;
+}
+
+.mark-as-collected-button {
+    background-color: #4CAF50;
+    color: white;
+}
+
+.mark-as-collected-button:hover {
+    background-color: #45a049;
+}
+
+.menu-management {
+    margin-top: 20px;
+}
+
+.menu-management form input,
+.menu-management form button {
+    display: block;
+    width: 100%;
+    margin-bottom: 10px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+}
+
+.menu-items {
+    margin-top: 20px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+}
+
+.menu-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border: 1px solid #ddd;
+    padding: 10px;
+    border-radius: 4px;
+    margin-bottom: 20px;
+    background-color: #fff;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: calc(33.333% - 20px);
+    box-sizing: border-box;
+}
+
+.menu-item h4 {
+    margin: 0;
+}
+
+.menu-item p {
+    margin: 5px 0;
+    font-size: 0.9em;
+}
+
+.menu-item button {
+    margin: 5px;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background-color: #4CAF50;
+    color: white;
+}
+
+.menu-item button:hover {
+    background-color: #45a049;
+}
+
+.toggle-availability {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.toggle-availability input {
+    cursor: pointer;
+}
+
+.toggle-availability span {
+    font-weight: bold;
+    color: #4CAF50;
+}
+
+@media (max-width: 768px) {
+    .menu-item {
+        width: calc(50% - 20px);
+    }
+}
+
+@media (max-width: 480px) {
+    .menu-item {
+        width: calc(100% - 20px);
+    }
+}

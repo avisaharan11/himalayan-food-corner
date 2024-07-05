@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { BrowserRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
+import { HashRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Menu from './components/Menu';
 import Cart from './components/Cart';
 import OrderStatus from './components/OrderStatus';
@@ -62,7 +62,7 @@ const App = () => {
     };
 
     return (
-        <Router basename={process.env.PUBLIC_URL}>
+        <Router>
             <div className="App">
                 <Header />
                 <Routes>

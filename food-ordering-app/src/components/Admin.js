@@ -53,11 +53,13 @@ const Admin = () => {
     };
 
     const markAsCollected = (id) => {
+        if (window.confirm("Do you want to print the receipt?")) {
+            window.open(`#/print-receipt/${id}`, '_blank');
+        }
         axios.patch(`http://localhost:5000/orders/${id}`, { status: 'Collected' })
             .then(res => {
                 console.log(res.data);
                 setOrders(orders.filter(order => order._id !== id));
-                window.open(`/print-receipt/${id}`, '_blank');
             })
             .catch(err => console.error(err));
     };

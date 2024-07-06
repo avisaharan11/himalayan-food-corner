@@ -9,6 +9,7 @@ const Menu = ({ addToOrder, viewCart, order, clearCart }) => {
     const [menuItems, setMenuItems] = useState([]);
     const [quantity, setQuantity] = useState({});
     const [modifiers, setModifiers] = useState({});
+    const [selectedCategory, setSelectedCategory] = useState('All');
 
     useEffect(() => {
         const fetchMenuItems = async () => {
@@ -46,28 +47,47 @@ const Menu = ({ addToOrder, viewCart, order, clearCart }) => {
         }));
     };
 
+    const categories = ['All', ...new Set(menuItems.map(item => item.category))];
+    const filterItems = selectedCategory === 'All' ? menuItems : menuItems.filter(item => item.category === selectedCategory);
+
     return (
-        <div className="menu">
-            {menuItems.map(item => (
-                <div key={item._id} className="menu-item">
-                    <img src={item.photo} alt={item.name} />
-                    <h3>{item.name}</h3>
-                    <p>Price: ${item.price}</p>
-                    <div className="quantity-controls">
-                        <button onClick={() => handleQuantityChange(item._id, -1)} disabled={!quantity[item._id]}>-</button>
-                        <span>{quantity[item._id] || 0}</span>
-                        <button onClick={() => handleQuantityChange(item._id, 1)}>+</button>
+        <div className="menu-container">
+            <h2>Menu</h2>
+            <div className="category-buttons">
+                {categories.map(category => (
+                    <button
+                        key={category}
+                        className={selectedCategory === category ? 'selected' : ''}
+                        onClick={() => setSelectedCategory(category)}
+                    >
+                        {category}
+                    </button>
+                ))}
+            </div>
+            <div className="menu-items">
+                {filterItems.map(item => (
+                    <div key={item._id} className="menu-item">
+                        <img src={item.photo} alt={item.name} />
+                        <div className="item-details">
+                            <h4>{item.name}</h4>
+                            <p>Price: ${item.price.toFixed(2)}</p>
+                            {quantity[item._id] > 0 && item.modifiers.length > 0 && (
+                                <select onChange={(e) => handleModifierChange(item._id, e.target.value)} value={modifiers[item._id] || ''}>
+                                    <option value="">Select Modifier</option>
+                                    {item.modifiers.map((modifier, index) => (
+                                        <option key={index} value={modifier}>{modifier}</option>
+                                    ))}
+                                </select>
+                            )}
+                        </div>
+                        <div className="quantity-controls">
+                            <button onClick={() => handleQuantityChange(item._id, -1)} disabled={!quantity[item._id]}>-</button>
+                            <span>{quantity[item._id] || 0}</span>
+                            <button onClick={() => handleQuantityChange(item._id, 1)}>+</button>
+                        </div>
                     </div>
-                    {quantity[item._id] > 0 && item.modifiers.length > 0 && (
-                        <select onChange={(e) => handleModifierChange(item._id, e.target.value)} value={modifiers[item._id] || ''}>
-                            <option value="">Select Modifier</option>
-                            {item.modifiers.map((modifier, index) => (
-                                <option key={index} value={modifier}>{modifier}</option>
-                            ))}
-                        </select>
-                    )}
-                </div>
-            ))}
+                ))}
+            </div>
             {Object.values(quantity).some(qty => qty > 0) && (
                 <div className="cart-actions">
                     <button onClick={clearCart} className="clear-cart-button">Clear Cart</button>

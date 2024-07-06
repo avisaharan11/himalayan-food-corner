@@ -21,7 +21,7 @@ const Admin = () => {
 
     useEffect(() => {
         const fetchOrders = async () => {
-            const res = await axios.get('http://localhost:5000/orders');
+            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/orders`);
             setOrders(res.data);
             if (res.data.length > prevOrdersLength.current) {
                 playNewOrderSound();
@@ -31,7 +31,7 @@ const Admin = () => {
         };
 
         const fetchMenuItems = async () => {
-            const res = await axios.get('http://localhost:5000/menu');
+            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`);
             setMenuItems(res.data);
         };
 
@@ -43,25 +43,25 @@ const Admin = () => {
         return () => clearInterval(intervalId);
     }, [playNewOrderSound]);
 
-    const markAsReady = (id) => {
-        axios.patch(`http://localhost:5000/orders/${id}`, { status: 'Ready' })
-            .then(res => {
-                console.log(res.data);
-                setOrders(orders.map(order => (order._id === id ? { ...order, status: 'Ready' } : order)));
-            })
-            .catch(err => console.error(err));
+    const markAsReady = async (id) => {
+        try {
+            await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/orders/update`, { id, status: 'Ready' });
+            setOrders(orders.map(order => (order._id === id ? { ...order, status: 'Ready' } : order)));
+        } catch (error) {
+            console.error('Error marking order as ready:', error);
+        }
     };
 
-    const markAsCollected = (id) => {
+    const markAsCollected = async (id) => {
         if (window.confirm("Do you want to print the receipt?")) {
             window.open(`#/print-receipt/${id}`, '_blank');
         }
-        axios.patch(`http://localhost:5000/orders/${id}`, { status: 'Collected' })
-            .then(res => {
-                console.log(res.data);
-                setOrders(orders.filter(order => order._id !== id));
-            })
-            .catch(err => console.error(err));
+        try {
+            await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/orders/update`, { id, status: 'Collected' });
+            setOrders(orders.filter(order => order._id !== id));
+        } catch (error) {
+            console.error('Error marking order as collected:', error);
+        }
     };
 
     const handleAddItem = (e) => {
@@ -71,7 +71,7 @@ const Admin = () => {
 
         const itemToAdd = { ...newItem, price: parseFloat(newItem.price), modifiers: modifiersArray };
 
-        axios.post('http://localhost:5000/menu', itemToAdd)
+        axios.post(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`, itemToAdd)
             .then(res => {
                 setMenuItems([...menuItems, res.data]);
                 setNewItem({
@@ -97,43 +97,45 @@ const Admin = () => {
         });
     };
 
-    const handleUpdateItem = (e) => {
+    const handleUpdateItem = async (e) => {
         e.preventDefault();
 
         const modifiersArray = newItem.modifiers ? newItem.modifiers.split(',').map(modifier => modifier.trim()) : [];
 
-        const itemToUpdate = { ...newItem, price: parseFloat(newItem.price), modifiers: modifiersArray };
+        const itemToUpdate = { ...newItem, price: parseFloat(newItem.price), modifiers: modifiersArray, id: editingItem._id };
 
-        axios.put(`http://localhost:5000/menu/${editingItem._id}`, itemToUpdate)
-            .then(res => {
-                setMenuItems(menuItems.map(item => (item._id === editingItem._id ? res.data : item)));
-                setEditingItem(null);
-                setNewItem({
-                    name: '',
-                    price: '',
-                    photo: '',
-                    modifiers: '',
-                    available: true
-                });
-            })
-            .catch(err => console.error(err));
+        try {
+            const res = await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/menu/update`, itemToUpdate);
+            setMenuItems(menuItems.map(item => (item._id === editingItem._id ? res.data : item)));
+            setEditingItem(null);
+            setNewItem({
+                name: '',
+                price: '',
+                photo: '',
+                modifiers: '',
+                available: true
+            });
+        } catch (error) {
+            console.error('Error updating menu item:', error);
+        }
     };
 
-    const handleDeleteItem = (id) => {
-        axios.delete(`http://localhost:5000/menu/${id}`)
-            .then(res => {
-                setMenuItems(menuItems.filter(item => item._id !== id));
-            })
-            .catch(err => console.error(err));
+    const handleDeleteItem = async (id) => {
+        try {
+            await axios.delete(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`, { data: { id } });
+            setMenuItems(menuItems.filter(item => item._id !== id));
+        } catch (error) {
+            console.error('Error deleting menu item:', error);
+        }
     };
 
-    const toggleAvailability = (id) => {
-        const item = menuItems.find(item => item._id === id);
-        axios.put(`http://localhost:5000/menu/${id}`, { available: !item.available })
-            .then(res => {
-                setMenuItems(menuItems.map(item => (item._id === id ? res.data : item)));
-            })
-            .catch(err => console.error(err));
+    const toggleAvailability = async (id, available) => {
+        try {
+            await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/menu/toggleAvailability`, { id, available });
+            setMenuItems(menuItems.map(item => (item._id === id ? { ...item, available } : item)));
+        } catch (error) {
+            console.error('Error toggling availability:', error);
+        }
     };
 
     const calculateOrderTotal = (items) => {

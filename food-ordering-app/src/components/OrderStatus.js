@@ -9,7 +9,7 @@ const OrderStatus = ({ placeNewOrder }) => {
 
     useEffect(() => {
         const fetchOrders = async () => {
-            const res = await axios.get('http://localhost:5000/orders');
+            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/orders`);
             setOrders(res.data);
         };
 

@@ -32,7 +32,7 @@ const Cart = ({ cartItems, resetOrder, goBackToMenu, viewOrderStatus, updateOrde
             status: 'Order Received'
         };
 
-        axios.post('http://localhost:5000/orders', newOrder)
+        axios.post(`${process.env.REACT_APP_MONGO_BASE_URL}/orders`, newOrder)
             .then(res => {
                 console.log(res.data);
                 setOrderPlaced(true);

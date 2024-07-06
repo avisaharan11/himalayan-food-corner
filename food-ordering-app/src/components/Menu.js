@@ -9,7 +9,7 @@ const Menu = ({ addToOrder, viewCart, order, clearCart }) => {
 
     useEffect(() => {
         const fetchMenuItems = async () => {
-            const res = await axios.get('http://localhost:5000/menu');
+            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`);
             setMenuItems(res.data);
 
             const initialQuantities = {};

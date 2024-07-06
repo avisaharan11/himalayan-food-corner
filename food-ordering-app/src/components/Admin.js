@@ -3,6 +3,7 @@ import './Admin.css';
 import useSound from 'use-sound';
 import newOrderSound from '../sounds/new-order.mp3';
 import * as Realm from "realm-web";
+import { FaLongArrowAltUp } from "react-icons/fa";
 
 const REALM_APP_ID = "application-0-jlihamb"; // replace with your App ID
 const app = new Realm.App({ id: REALM_APP_ID });
@@ -16,9 +17,13 @@ const Admin = () => {
         price: '',
         photo: '',
         modifiers: '',
-        available: true
+        available: true,
+        category: 'Starters'
     });
     const [editingItem, setEditingItem] = useState(null);
+    const [showForm, setShowForm] = useState(false);
+    const [showMenu, setShowMenu] = useState(false);
+    const [selectedCategory, setSelectedCategory] = useState('All');
     const [playNewOrderSound] = useSound(newOrderSound);
     const prevOrdersLength = useRef(0);
     const [user, setUser] = useState(null);
@@ -71,7 +76,7 @@ const Admin = () => {
         } catch (error) {
             console.error('Error marking order as ready:', error);
         }
-    };   
+    };
 
     const markAsCollected = async (id) => {
         try {
@@ -87,19 +92,21 @@ const Admin = () => {
         e.preventDefault();
 
         const modifiersArray = newItem.modifiers ? newItem.modifiers.split(',').map(modifier => modifier.trim()) : [];
-
         const itemToAdd = { ...newItem, price: parseFloat(newItem.price), modifiers: modifiersArray };
 
         try {
-            const res = await user.functions.addMenuItem(itemToAdd);
-            setMenuItems([...menuItems, { ...itemToAdd, _id: res }]);
+            const user = app.currentUser || await app.logIn(Realm.Credentials.anonymous());
+            const insertedId = await user.functions.addMenuItem(itemToAdd);
+            setMenuItems([...menuItems, { ...itemToAdd, _id: insertedId }]);
             setNewItem({
                 name: '',
                 price: '',
                 photo: '',
                 modifiers: '',
-                available: true
+                available: true,
+                category: 'Starters'
             });
+            setShowForm(false);
         } catch (error) {
             console.error('Error adding menu item:', error);
         }
@@ -113,8 +120,10 @@ const Admin = () => {
             price: item.price,
             photo: item.photo,
             modifiers: item.modifiers ? item.modifiers.join(', ') : '',
-            available: item.available
+            available: item.available,
+            category: item.category
         });
+        setShowForm(true);
     };
 
     const handleUpdateItem = async (e) => {
@@ -133,8 +142,10 @@ const Admin = () => {
                 price: '',
                 photo: '',
                 modifiers: '',
-                available: true
+                available: true,
+                category: 'Starters'
             });
+            setShowForm(false);
         } catch (error) {
             console.error('Error updating menu item:', error);
         }
@@ -164,6 +175,7 @@ const Admin = () => {
         return items.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
     };
 
+    const filterItems = selectedCategory === 'All' ? menuItems : menuItems.filter(item => item.category === selectedCategory);
     return (
         <div className="admin">
             <h2>Admin Panel</h2>
@@ -194,65 +206,100 @@ const Admin = () => {
                 ))}
             </div>
             <div className="menu-management">
-                <h3>{editingItem ? 'Edit Menu Item' : 'Add New Menu Item'}</h3>
-                <form onSubmit={editingItem ? handleUpdateItem : handleAddItem}>
-                    <input
-                        type="text"
-                        name="name"
-                        value={newItem.name}
-                        onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
-                        placeholder="Item Name"
-                        required
-                    />
-                    <input
-                        type="number"
-                        name="price"
-                        value={newItem.price}
-                        onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
-                        placeholder="Item Price"
-                        required
-                    />
-                    <input
-                        type="text"
-                        name="photo"
-                        value={newItem.photo}
-                        onChange={(e) => setNewItem({ ...newItem, photo: e.target.value })}
-                        placeholder="Photo URL"
-                        required
-                    />
-                    <input
-                        type="text"
-                        name="modifiers"
-                        value={newItem.modifiers}
-                        onChange={(e) => setNewItem({ ...newItem, modifiers: e.target.value })}
-                        placeholder="Modifiers (comma separated)"
-                    />
-                    <button type="submit">{editingItem ? 'Update Item' : 'Add Item'}</button>
-                    {editingItem && <button type="button" onClick={() => setEditingItem(null)}>Cancel Edit</button>}
-                </form>
-                <h3>Menu Items</h3>
-                <div className="menu-items">
-                    {menuItems.map(item => (
-                        <div key={item._id} className="menu-item">
-                            <h4>{item.name}</h4>
-                            <p>Price: ${item.price}</p>
-                            <p>Modifiers: {item.modifiers ? item.modifiers.join(', ') : ''}</p>
-                            <button onClick={() => handleEditItem(item._id)}>Edit</button>
-                            <button onClick={() => handleDeleteItem(item._id)}>Delete</button>
-                            <label className="toggle-availability">
-                                <input
-                                    type="checkbox"
-                                    checked={item.available}
-                                    onChange={() => toggleAvailability(item._id)}
-                                />
-                                <span>{item.available ? 'Available' : 'Unavailable'}</span>
-                            </label>
+            
+                {showMenu && (
+                    <>
+                        {showForm && (
+                            <div className="form-container">
+                                <h3>{editingItem ? 'Edit Menu Item' : 'Add New Menu Item'}</h3>
+                                <form onSubmit={editingItem ? handleUpdateItem : handleAddItem}>
+                                    <input
+                                        type="text"
+                                        name="name"
+                                        value={newItem.name}
+                                        onChange={(e) => setNewItem({ ...newItem, name: e.target.value })}
+                                        placeholder="Item Name"
+                                        required
+                                    />
+                                    <input
+                                        type="number"
+                                        name="price"
+                                        value={newItem.price}
+                                        onChange={(e) => setNewItem({ ...newItem, price: e.target.value })}
+                                        placeholder="Item Price"
+                                        required
+                                    />
+                                    <input
+                                        type="text"
+                                        name="photo"
+                                        value={newItem.photo}
+                                        onChange={(e) => setNewItem({ ...newItem, photo: e.target.value })}
+                                        placeholder="Photo URL"
+                                        required
+                                    />
+                                    <input
+                                        type="text"
+                                        name="modifiers"
+                                        value={newItem.modifiers}
+                                        onChange={(e) => setNewItem({ ...newItem, modifiers: e.target.value })}
+                                        placeholder="Modifiers (comma separated)"
+                                    />
+                                    <select
+                                        name="category"
+                                        value={newItem.category}
+                                        onChange={(e) => setNewItem({ ...newItem, category: e.target.value })}
+                                        required
+                                    >
+                                        <option value="Starters">Starters</option>
+                                        <option value="Main Course">Main Course</option>
+                                        <option value="Drinks">Drinks</option>
+                                    </select>
+                                    <button type="submit">{editingItem ? 'Update Item' : 'Add Item'}</button>
+                                    <button type="button" onClick={() => {setEditingItem(null);setShowForm(false);}}>Cancel</button>
+                                </form>
+                            </div>
+                        )}
+                        {showMenu && <h2>Menu</h2>}
+                        <div className="category-buttons">
+                            {['All', 'Starters', 'Main Course', 'Drinks'].map(category => (
+                                <button
+                                    key={category}
+                                    className={selectedCategory === category ? 'selected' : ''}
+                                    onClick={() => setSelectedCategory(category)}
+                                >
+                                    {category}
+                                </button>
+                            ))}
                         </div>
-                    ))}
-                </div>
+                        {!showForm && (<button onClick={() => {setEditingItem(null); setShowForm(false); setShowForm(true)}}>Add Item +</button>)}
+                        <div className="menu-items">
+                            {filterItems.map(item => (
+                                <div key={item._id} className="menu-item">
+                                    <h4>{item.name}</h4>
+                                    <p>Price: ${item.price}</p>
+                                    <p>Modifiers: {item.modifiers ? item.modifiers.join(', ') : ''}</p>
+                                    <p>Category: {item.category}</p>
+                                    <button onClick={() => handleEditItem(item._id)}>Edit</button>
+                                    <button onClick={() => handleDeleteItem(item._id)}>Delete</button>
+                                    <label className="toggle-availability">
+                                        <input
+                                            type="checkbox"
+                                            checked={item.available}
+                                            onChange={() => toggleAvailability(item._id)}
+                                        />
+                                        <span>{item.available ? 'Available' : 'Unavailable'}</span>
+                                    </label>
+                                </div>
+                            ))}
+                        </div>
+                    </>
+                )}
+                <button onClick={() => setShowMenu(!showMenu)}>{showMenu ? 'Hide Menu' : 'View Menu'}</button>
             </div>
         </div>
     );
+    
+    
 };
 
 export default Admin;

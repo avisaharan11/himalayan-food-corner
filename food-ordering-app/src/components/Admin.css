@@ -91,14 +91,56 @@
     margin-top: 20px;
 }
 
+.menu-management button {
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 4px;
+    transition: background-color 0.3s, color 0.3s;
+    margin-bottom: 10px;
+}
+
+.menu-management button:hover {
+    background-color: #45a049;
+}
+
+.menu-management .form-container {
+    margin-top: 20px;
+}
+
 .menu-management form input,
-.menu-management form button {
+.menu-management form button,
+.menu-management form select {
     display: block;
     width: 100%;
     margin-bottom: 10px;
     padding: 10px;
     border: 1px solid #ddd;
     border-radius: 4px;
+}
+
+.category-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.category-buttons button {
+    padding: 10px;
+    cursor: pointer;
+    border: none;
+    background-color: #4CAF50;
+    color: white;
+    border-radius: 4px;
+    transition: background-color 0.3s, color 0.3s;
+}
+
+.category-buttons button.selected {
+    background-color: #45a049;
+    color: white;
 }
 
 .menu-items {

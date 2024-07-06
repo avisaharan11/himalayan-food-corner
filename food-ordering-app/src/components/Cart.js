@@ -74,7 +74,6 @@ const Cart = ({ cartItems, resetOrder, goBackToMenu, viewOrderStatus, updateOrde
             <div className="cart-total">
                 <h3>Total: ${calculateTotal()}</h3>
             </div>
-            <button onClick={goBackToMenu} className="back-to-menu-button" disabled={orderPlaced}>Add More</button>
             {items.length > 0 && (
                 <form onSubmit={handleSubmit} className="order-form">
                     <input
@@ -94,6 +93,7 @@ const Cart = ({ cartItems, resetOrder, goBackToMenu, viewOrderStatus, updateOrde
                         disabled={orderPlaced}
                     />
                     <button type="submit" className="place-order-button" disabled={orderPlaced}>Place Order</button>
+                    <button onClick={goBackToMenu} className="back-to-menu-button" disabled={orderPlaced}>Add More Items</button>
                 </form>
             )}
         </div>

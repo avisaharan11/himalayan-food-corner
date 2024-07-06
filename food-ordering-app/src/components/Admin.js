@@ -1,8 +1,11 @@
 import React, { useEffect, useState, useRef } from 'react';
-import axios from 'axios';
 import './Admin.css';
 import useSound from 'use-sound';
 import newOrderSound from '../sounds/new-order.mp3';
+import * as Realm from "realm-web";
+
+const REALM_APP_ID = "application-0-jlihamb"; // replace with your App ID
+const app = new Realm.App({ id: REALM_APP_ID });
 
 const Admin = () => {
     const [orders, setOrders] = useState([]);
@@ -18,71 +21,88 @@ const Admin = () => {
     const [editingItem, setEditingItem] = useState(null);
     const [playNewOrderSound] = useSound(newOrderSound);
     const prevOrdersLength = useRef(0);
+    const [user, setUser] = useState(null);
 
     useEffect(() => {
-        const fetchOrders = async () => {
-            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/orders`);
-            setOrders(res.data);
-            if (res.data.length > prevOrdersLength.current) {
+        const login = async () => {
+            const user = await app.logIn(Realm.Credentials.anonymous());
+            setUser(user);
+        };
+        login();
+    }, []);
+
+    useEffect(() => {
+        if (user) {
+            fetchOrders();
+            fetchMenuItems();
+            const intervalId = setInterval(fetchOrders, 3000); // Check for new orders every 3 seconds
+            return () => clearInterval(intervalId);
+        }
+    }, [user]);
+
+    const fetchOrders = async () => {
+        try {
+            const res = await user.functions.fetchOrders();
+            setOrders(res);
+            if (res.length > prevOrdersLength.current) {
                 playNewOrderSound();
                 alert('New order received!');
             }
-            prevOrdersLength.current = res.data.length;
-        };
+            prevOrdersLength.current = res.length;
+        } catch (error) {
+            console.error('Error fetching orders:', error);
+        }
+    };
 
-        const fetchMenuItems = async () => {
-            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`);
-            setMenuItems(res.data);
-        };
-
-        fetchOrders();
-        fetchMenuItems();
-
-        const intervalId = setInterval(fetchOrders, 3000); // Check for new orders every 3 seconds
-
-        return () => clearInterval(intervalId);
-    }, [playNewOrderSound]);
+    const fetchMenuItems = async () => {
+        try {
+            const res = await user.functions.fetchMenuItems();
+            setMenuItems(res);
+        } catch (error) {
+            console.error('Error fetching menu items:', error);
+        }
+    };
 
     const markAsReady = async (id) => {
         try {
-            await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/orders/update`, { id, status: 'Ready' });
+            const user = app.currentUser || await app.logIn(Realm.Credentials.anonymous());
+            await user.functions.updateOrderStatus({ id: id.toString(), status: 'Ready' });
             setOrders(orders.map(order => (order._id === id ? { ...order, status: 'Ready' } : order)));
         } catch (error) {
             console.error('Error marking order as ready:', error);
         }
-    };
+    };   
 
     const markAsCollected = async (id) => {
-        if (window.confirm("Do you want to print the receipt?")) {
-            window.open(`#/print-receipt/${id}`, '_blank');
-        }
         try {
-            await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/orders/update`, { id, status: 'Collected' });
+            const user = app.currentUser || await app.logIn(Realm.Credentials.anonymous());
+            await user.functions.updateOrderStatus({ id: id.toString(), status: 'Collected' });
             setOrders(orders.filter(order => order._id !== id));
         } catch (error) {
             console.error('Error marking order as collected:', error);
         }
     };
 
-    const handleAddItem = (e) => {
+    const handleAddItem = async (e) => {
         e.preventDefault();
 
         const modifiersArray = newItem.modifiers ? newItem.modifiers.split(',').map(modifier => modifier.trim()) : [];
 
         const itemToAdd = { ...newItem, price: parseFloat(newItem.price), modifiers: modifiersArray };
 
-        axios.post(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`, itemToAdd)
-            .then(res => {
-                setMenuItems([...menuItems, res.data]);
-                setNewItem({
-                    name: '',
-                    price: '',
-                    photo: '',
-                    modifiers: '',
-                    available: true
-                });
-            })
-            .catch(err => console.error(err));
+        try {
+            const res = await user.functions.addMenuItem(itemToAdd);
+            setMenuItems([...menuItems, { ...itemToAdd, _id: res }]);
+            setNewItem({
+                name: '',
+                price: '',
+                photo: '',
+                modifiers: '',
+                available: true
+            });
+        } catch (error) {
+            console.error('Error adding menu item:', error);
+        }
     };
 
     const handleEditItem = (id) => {
@@ -101,12 +121,12 @@ const Admin = () => {
         e.preventDefault();
 
         const modifiersArray = newItem.modifiers ? newItem.modifiers.split(',').map(modifier => modifier.trim()) : [];
-
-        const itemToUpdate = { ...newItem, price: parseFloat(newItem.price), modifiers: modifiersArray, id: editingItem._id };
+        const itemToUpdate = { ...newItem, price: parseFloat(newItem.price), modifiers: modifiersArray, id: editingItem._id.toString() };
 
         try {
-            const res = await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/menu/update`, itemToUpdate);
-            setMenuItems(menuItems.map(item => (item._id === editingItem._id ? res.data : item)));
+            const user = app.currentUser || await app.logIn(Realm.Credentials.anonymous());
+            await user.functions.updateMenuItem(itemToUpdate);
+            setMenuItems(menuItems.map(item => (item._id === editingItem._id ? { ...itemToUpdate, _id: editingItem._id } : item)));
             setEditingItem(null);
             setNewItem({
                 name: '',
@@ -122,17 +142,19 @@ const Admin = () => {
 
     const handleDeleteItem = async (id) => {
         try {
-            await axios.delete(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`, { data: { id } });
+            const user = app.currentUser || await app.logIn(Realm.Credentials.anonymous());
+            await user.functions.deleteMenuItem({ id: id.toString() });
             setMenuItems(menuItems.filter(item => item._id !== id));
         } catch (error) {
             console.error('Error deleting menu item:', error);
         }
     };
 
-    const toggleAvailability = async (id, available) => {
+    const toggleAvailability = async (id) => {
         try {
-            await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/menu/toggleAvailability`, { id, available });
-            setMenuItems(menuItems.map(item => (item._id === id ? { ...item, available } : item)));
+            const user = app.currentUser || await app.logIn(Realm.Credentials.anonymous());
+            await user.functions.toggleAvailability({ id: id.toString() });
+            setMenuItems(menuItems.map(item => (item._id === id ? { ...item, available: !item.available } : item)));
         } catch (error) {
             console.error('Error toggling availability:', error);
         }

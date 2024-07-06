@@ -1,7 +1,10 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import './Cart.css';
+import * as Realm from "realm-web";
+
+const REALM_APP_ID = "application-0-jlihamb"; // replace with your App ID
+const app = new Realm.App({ id: REALM_APP_ID });
 
 const Cart = ({ cartItems, resetOrder, goBackToMenu, viewOrderStatus, updateOrder }) => {
     const [customerName, setCustomerName] = useState('');
@@ -22,7 +25,7 @@ const Cart = ({ cartItems, resetOrder, goBackToMenu, viewOrderStatus, updateOrde
         return items.reduce((total, item) => total + item.price * item.quantity, 0).toFixed(2);
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
         const newOrder = {
@@ -32,17 +35,19 @@ const Cart = ({ cartItems, resetOrder, goBackToMenu, viewOrderStatus, updateOrde
             status: 'Order Received'
         };
 
-        axios.post(`${process.env.REACT_APP_MONGO_BASE_URL}/orders`, newOrder)
-            .then(res => {
-                console.log(res.data);
-                setOrderPlaced(true);
-                setTimeout(() => {
-                    setOrderPlaced(false);
-                    resetOrder();
-                    viewOrderStatus(navigate);
-                }, 3000);
-            })
-            .catch(err => console.error(err));
+        const user = app.currentUser || await app.logIn(Realm.Credentials.anonymous());
+
+        try {
+            await user.functions.addOrder(newOrder);
+            setOrderPlaced(true);
+            setTimeout(() => {
+                setOrderPlaced(false);
+                resetOrder();
+                viewOrderStatus(navigate);
+            }, 3000);
+        } catch (err) {
+            console.error(err);
+        }
     };
 
     return (

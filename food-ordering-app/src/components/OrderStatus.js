@@ -1,7 +1,10 @@
 import React, { useEffect, useState } from 'react';
-import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import './OrderStatus.css';
+import * as Realm from "realm-web";
+
+const REALM_APP_ID = "application-0-jlihamb"; // replace with your App ID
+const app = new Realm.App({ id: REALM_APP_ID });
 
 const OrderStatus = ({ placeNewOrder }) => {
     const [orders, setOrders] = useState([]);
@@ -9,8 +12,9 @@ const OrderStatus = ({ placeNewOrder }) => {
 
     useEffect(() => {
         const fetchOrders = async () => {
-            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/orders`);
-            setOrders(res.data);
+            const user = app.currentUser || await app.logIn(Realm.Credentials.anonymous());
+            const orders = await user.functions.fetchOrders();
+            setOrders(orders);
         };
 
         fetchOrders();

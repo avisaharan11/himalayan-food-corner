@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { HashRouter as Router, Routes, Route, useNavigate } from 'react-router-dom';
 import Menu from './components/Menu';
 import Cart from './components/Cart';
@@ -6,11 +6,24 @@ import OrderStatus from './components/OrderStatus';
 import Admin from './components/Admin';
 import PrintReceipt from './components/PrintReceipt';
 import './App.css';
-import { IoHomeSharp } from 'react-icons/io5';
+import { IoHomeSharp, IoCallOutline } from 'react-icons/io5';
+import * as Realm from "realm-web";
+
+const REALM_APP_ID = "application-0-jlihamb"; // replace with your App ID
+const app = new Realm.App({ id: REALM_APP_ID });
 
 const App = () => {
     const [order, setOrder] = useState([]);
     const [viewingCart, setViewingCart] = useState(false);
+    const [user, setUser] = useState(null);
+
+    useEffect(() => {
+        const login = async () => {
+            const user = await app.logIn(Realm.Credentials.anonymous());
+            setUser(user);
+        };
+        login();
+    }, []);
 
     const addToOrder = (item, quantity) => {
         setOrder(prevOrder => {
@@ -91,8 +104,8 @@ const Header = () => {
                 Himalayan Food Corner <IoHomeSharp className="home-icon" />
             </h1>
             <p>
-                <a href="https://goo.gl/maps/EXAMPLE" target="_blank" rel="noopener noreferrer">123 Main St, Your City</a> | 
-                <a href="tel:+1234567890">+1 234-567-890</a>
+                <a href="https://g.co/kgs/4ctCRrR" target="_blank" rel="noopener noreferrer">143 Toi Toi Street, Nelson</a> | 
+                <a href="tel:+642108101308"><IoCallOutline className="home-icon" />02108101308</a>
             </p>
         </header>
     );

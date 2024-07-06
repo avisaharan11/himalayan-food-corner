@@ -1,6 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import './Menu.css';
+import * as Realm from "realm-web";
+
+const REALM_APP_ID = "application-0-jlihamb"; // replace with your App ID
+const app = new Realm.App({ id: REALM_APP_ID });
 
 const Menu = ({ addToOrder, viewCart, order, clearCart }) => {
     const [menuItems, setMenuItems] = useState([]);
@@ -9,8 +12,9 @@ const Menu = ({ addToOrder, viewCart, order, clearCart }) => {
 
     useEffect(() => {
         const fetchMenuItems = async () => {
-            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`);
-            setMenuItems(res.data);
+            const user = app.currentUser || await app.logIn(Realm.Credentials.anonymous());
+            const menuItems = await user.functions.fetchMenuItems();
+            setMenuItems(menuItems);
 
             const initialQuantities = {};
             const initialModifiers = {};

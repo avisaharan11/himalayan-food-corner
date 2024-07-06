@@ -9,9 +9,6 @@ const Cart = ({ cartItems, resetOrder, goBackToMenu, viewOrderStatus, updateOrde
     const [orderPlaced, setOrderPlaced] = useState(false);
     const [items, setItems] = useState(cartItems);
     const navigate = useNavigate();
-    const config = {
-        headers: { 'api-key': process.env.REACT_APP_MONGO_API_KEY }
-    };
 
     const handleQuantityChange = (id, delta) => {
         const updatedItems = items.map(item =>
@@ -35,7 +32,7 @@ const Cart = ({ cartItems, resetOrder, goBackToMenu, viewOrderStatus, updateOrde
             status: 'Order Received'
         };
 
-        axios.post(`${process.env.REACT_APP_MONGO_BASE_URL}/orders`, newOrder, config)
+        axios.post(`${process.env.REACT_APP_MONGO_BASE_URL}/orders`, newOrder)
             .then(res => {
                 console.log(res.data);
                 setOrderPlaced(true);

@@ -6,13 +6,10 @@ const Menu = ({ addToOrder, viewCart, order, clearCart }) => {
     const [menuItems, setMenuItems] = useState([]);
     const [quantity, setQuantity] = useState({});
     const [modifiers, setModifiers] = useState({});
-    const config = {
-        headers: { 'api-key': process.env.REACT_APP_MONGO_API_KEY }
-    };
 
     useEffect(() => {
         const fetchMenuItems = async () => {
-            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`, config);
+            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`);
             setMenuItems(res.data);
 
             const initialQuantities = {};

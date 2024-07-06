@@ -5,15 +5,13 @@ import './OrderForm.css';
 const OrderForm = ({ order, resetOrder }) => {
     const [customerName, setCustomerName] = useState('');
     const [orderPlaced, setOrderPlaced] = useState(false);
-    const config = {
-        headers: { 'api-key': process.env.REACT_APP_MONGO_API_KEY }
-    };
+
     const handleSubmit = (e) => {
         e.preventDefault();
 
         const newOrder = { customerName, items: order, status: 'Pending' };
 
-        axios.post('http://localhost:5000/orders', newOrder, config)
+        axios.post('http://localhost:5000/orders', newOrder)
             .then(res => {
                 console.log(res.data);
                 resetOrder();

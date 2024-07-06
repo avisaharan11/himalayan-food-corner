@@ -19,13 +19,9 @@ const Admin = () => {
     const [playNewOrderSound] = useSound(newOrderSound);
     const prevOrdersLength = useRef(0);
 
-    const config = {
-        headers: { 'api-key': process.env.REACT_APP_MONGO_API_KEY }
-    };
-
     useEffect(() => {
         const fetchOrders = async () => {
-            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/orders`, config);
+            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/orders`);
             setOrders(res.data);
             if (res.data.length > prevOrdersLength.current) {
                 playNewOrderSound();
@@ -35,7 +31,7 @@ const Admin = () => {
         };
 
         const fetchMenuItems = async () => {
-            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`, config);
+            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`);
             setMenuItems(res.data);
         };
 
@@ -49,7 +45,7 @@ const Admin = () => {
 
     const markAsReady = async (id) => {
         try {
-            await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/orders/update`, { id, status: 'Ready' }, config);
+            await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/orders/update`, { id, status: 'Ready' });
             setOrders(orders.map(order => (order._id === id ? { ...order, status: 'Ready' } : order)));
         } catch (error) {
             console.error('Error marking order as ready:', error);
@@ -61,7 +57,7 @@ const Admin = () => {
             window.open(`#/print-receipt/${id}`, '_blank');
         }
         try {
-            await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/orders/update`, { id, status: 'Collected' }, config);
+            await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/orders/update`, { id, status: 'Collected' });
             setOrders(orders.filter(order => order._id !== id));
         } catch (error) {
             console.error('Error marking order as collected:', error);
@@ -75,7 +71,7 @@ const Admin = () => {
 
         const itemToAdd = { ...newItem, price: parseFloat(newItem.price), modifiers: modifiersArray };
 
-        axios.post(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`, itemToAdd, config)
+        axios.post(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`, itemToAdd)
             .then(res => {
                 setMenuItems([...menuItems, res.data]);
                 setNewItem({
@@ -109,7 +105,7 @@ const Admin = () => {
         const itemToUpdate = { ...newItem, price: parseFloat(newItem.price), modifiers: modifiersArray, id: editingItem._id };
 
         try {
-            const res = await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/menu/update`, itemToUpdate, config);
+            const res = await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/menu/update`, itemToUpdate);
             setMenuItems(menuItems.map(item => (item._id === editingItem._id ? res.data : item)));
             setEditingItem(null);
             setNewItem({
@@ -126,7 +122,7 @@ const Admin = () => {
 
     const handleDeleteItem = async (id) => {
         try {
-            await axios.delete(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`, { data: { id } }, config);
+            await axios.delete(`${process.env.REACT_APP_MONGO_BASE_URL}/menu`, { data: { id } });
             setMenuItems(menuItems.filter(item => item._id !== id));
         } catch (error) {
             console.error('Error deleting menu item:', error);
@@ -135,7 +131,7 @@ const Admin = () => {
 
     const toggleAvailability = async (id, available) => {
         try {
-            await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/menu/toggleAvailability`, { id, available }, config);
+            await axios.patch(`${process.env.REACT_APP_MONGO_BASE_URL}/menu/toggleAvailability`, { id, available });
             setMenuItems(menuItems.map(item => (item._id === id ? { ...item, available } : item)));
         } catch (error) {
             console.error('Error toggling availability:', error);

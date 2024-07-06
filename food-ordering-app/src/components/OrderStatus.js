@@ -6,10 +6,12 @@ import './OrderStatus.css';
 const OrderStatus = ({ placeNewOrder }) => {
     const [orders, setOrders] = useState([]);
     const navigate = useNavigate();
-
+    const config = {
+        headers: { 'api-key': process.env.REACT_APP_MONGO_API_KEY }
+    };
     useEffect(() => {
         const fetchOrders = async () => {
-            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/orders`);
+            const res = await axios.get(`${process.env.REACT_APP_MONGO_BASE_URL}/orders`, config);
             setOrders(res.data);
         };
 

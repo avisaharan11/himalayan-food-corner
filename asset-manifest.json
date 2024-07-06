@@ -1,18 +1,18 @@
 {
   "files": {
-    "main.css": "/himalayan-food-corner/static/css/main.079f4082.css",
-    "main.js": "/himalayan-food-corner/static/js/main.a5888e2b.js",
+    "main.css": "/himalayan-food-corner/static/css/main.ac6387e4.css",
+    "main.js": "/himalayan-food-corner/static/js/main.eae62ded.js",
     "static/js/885.44549e15.chunk.js": "/himalayan-food-corner/static/js/885.44549e15.chunk.js",
     "static/js/453.ef41bcbd.chunk.js": "/himalayan-food-corner/static/js/453.ef41bcbd.chunk.js",
     "static/media/new-order.mp3": "/himalayan-food-corner/static/media/new-order.4c04bbc539116b0a76bd.mp3",
     "index.html": "/himalayan-food-corner/index.html",
-    "main.079f4082.css.map": "/himalayan-food-corner/static/css/main.079f4082.css.map",
-    "main.a5888e2b.js.map": "/himalayan-food-corner/static/js/main.a5888e2b.js.map",
+    "main.ac6387e4.css.map": "/himalayan-food-corner/static/css/main.ac6387e4.css.map",
+    "main.eae62ded.js.map": "/himalayan-food-corner/static/js/main.eae62ded.js.map",
     "885.44549e15.chunk.js.map": "/himalayan-food-corner/static/js/885.44549e15.chunk.js.map",
     "453.ef41bcbd.chunk.js.map": "/himalayan-food-corner/static/js/453.ef41bcbd.chunk.js.map"
   },
   "entrypoints": [
-    "static/css/main.079f4082.css",
-    "static/js/main.a5888e2b.js"
+    "static/css/main.ac6387e4.css",
+    "static/js/main.eae62ded.js"
   ]
 }
